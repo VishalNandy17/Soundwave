@@ -9,6 +9,134 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <style>
+        #album-carousel {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+        
+        .album-card {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            transition: transform 0.5s;
+        }
+        
+        #waveform {
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        .genre-tag {
+            background: rgba(0, 255, 255, 0.2);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .genre-tag:hover, .genre-tag.active {
+            background: rgba(0, 255, 255, 0.5);
+            transform: scale(1.1);
+        }
+        
+        .playlist-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        
+        .playlist-track:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(10px);
+        }
+
+        /* Add these styles to your existing <style> tag */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+    
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    
+        .discovery-item {
+            position: absolute;
+            transition: all 0.5s ease;
+        }
+    
+        .discovery-item:hover {
+            z-index: 10;
+            transform: scale(1.1);
+        }
+    
+        .discovery-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: #0ff;
+            box-shadow: 0 0 15px #0ff;
+        }
+    
+        .discovery-label {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #fff;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+    
+        .discovery-item:hover .discovery-label {
+            opacity: 1;
+        }
+    
+        #discovery-background {
+            background: linear-gradient(45deg, #000033, #000066);
+            opacity: 0.5;
+        }
+    
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    
+        @media (max-width: 1023px) {
+            #discovery-container {
+                height: 400px;
+            }
+            
+            .discovery-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+            
+            .discovery-label {
+                font-size: 12px;
+            }
+        }
+    </style>
+    <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
 
         body {
@@ -216,7 +344,193 @@
             <div class="wave wave2"></div>
             <div class="wave wave3"></div>
         </section>
+
+        <section id="discovery" class="min-h-screen py-20 relative overflow-hidden bg-black">
+            <div class="container mx-auto px-6 z-10 relative">
+                <h2 class="text-6xl font-bold mb-16 text-center neon-text animate-pulse">
+                    Sonic Exploration Hub
+                </h2>
+                <div class="flex flex-col lg:flex-row">
+                    <div id="discovery-container" class="relative h-[600px] w-full lg:w-2/3 mb-12 lg:mb-0">
+                        <!-- Dynamic content will be inserted here -->
+                    </div>
+                    <div id="featured-artist" class="w-full lg:w-1/3 lg:pl-8">
+                        <h3 class="text-3xl font-bold mb-6 text-gradient">Featured Artist</h3>
+                        <div class="glassmorphism rounded-lg p-6">
+                            <div id="artist-image" class="w-48 h-48 mx-auto mb-4 rounded-full bg-cover bg-center"></div>
+                            <h4 id="artist-name" class="text-2xl font-semibold text-center mb-2"></h4>
+                            <p id="artist-bio" class="text-gray-300 text-center mb-4"></p>
+                            <button class="w-full bg-cyan-400 text-black font-bold py-2 px-4 rounded-full hover:bg-cyan-300 transition duration-300">
+                                Explore Artist
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="discovery-background" class="absolute top-0 left-0 w-full h-full"></div>
+        </section>
+        
+        <section id="library" class="min-h-screen py-20 relative overflow-hidden bg-black">
+            <div class="container mx-auto px-6 z-10 relative">
+                <h2 class="text-6xl font-bold mb-16 text-center neon-text animate-pulse">
+                    Your Sonic Sanctuary
+                </h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <div id="album-carousel" class="relative h-[400px]">
+                        <h3 class="text-3xl font-bold mb-6 text-gradient">Album Showcase</h3>
+                        <!-- 3D album carousel will be inserted here -->
+                    </div>
+                    <div id="track-visualizer" class="relative h-[400px]">
+                        <h3 class="text-3xl font-bold mb-6 text-gradient">Track Visualizer</h3>
+                        <canvas id="waveform" class="w-full h-[300px]"></canvas>
+                        <div id="track-info" class="mt-4 text-center"></div>
+                    </div>
+                </div>
+                <div id="playlist-creator" class="mt-16">
+                    <h3 class="text-3xl font-bold mb-6 text-gradient">Playlist Creator</h3>
+                    <div class="flex flex-wrap gap-4" id="genre-tags"></div>
+                    <div id="generated-playlist" class="mt-8"></div>
+                </div>
+            </div>
+            <div id="library-particles" class="absolute top-0 left-0 w-full h-full"></div>
+        </section>
     </main>
+
+    <script>
+        // Add this script to your existing <script> tag or create a new one
+        document.addEventListener('DOMContentLoaded', () => {
+            const discoveryItems = [
+                { icon: '🎵', label: 'Genres' },
+                { icon: '🎤', label: 'Artists' },
+                { icon: '🎼', label: 'Compositions' },
+                { icon: '🎧', label: 'Playlists' },
+                { icon: '🌈', label: 'Moods' },
+                { icon: '🌍', label: 'World Music' },
+                { icon: '🎹', label: 'Instruments' },
+                { icon: '📅', label: 'Eras' }
+            ];
+    
+            const container = document.getElementById('discovery-container');
+            const background = document.getElementById('discovery-background');
+    
+            function createDiscoveryItem(item, index) {
+                const div = document.createElement('div');
+                div.classList.add('discovery-item');
+                div.innerHTML = `
+                    <div class="discovery-icon">${item.icon}</div>
+                    <div class="discovery-label">${item.label}</div>
+                `;
+    
+                const angle = (index / discoveryItems.length) * 2 * Math.PI;
+                const radius = container.clientWidth < 768 ? 150 : 250; // Adjust radius for mobile
+                const x = Math.cos(angle) * radius + radius;
+                const y = Math.sin(angle) * radius + (container.clientWidth < 768 ? radius / 2 : radius);
+    
+                div.style.left = `${x}px`;
+                div.style.top = `${y}px`;
+                div.style.animation = `float ${5 + index}s ease-in-out infinite`;
+    
+                return div;
+            }
+    
+            discoveryItems.forEach((item, index) => {
+                const discoveryItem = createDiscoveryItem(item, index);
+                container.appendChild(discoveryItem);
+            });
+    
+            // Interactive background
+            function createStar() {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.cssText = `
+                    position: absolute;
+                    width: 2px;
+                    height: 2px;
+                    background: #fff;
+                    border-radius: 50%;
+                    top: ${Math.random() * 100}%;
+                    left: ${Math.random() * 100}%;
+                    animation: pulse ${2 + Math.random() * 3}s infinite alternate;
+                `;
+                background.appendChild(star);
+            }
+    
+            for (let i = 0; i < 100; i++) {
+                createStar();
+            }
+    
+            // Orbital rotation effect
+            let angle = 0;
+            function rotateItems() {
+                angle += 0.001;
+                const items = document.querySelectorAll('.discovery-item');
+                const radius = container.clientWidth < 768 ? 150 : 250; // Adjust radius for mobile
+                items.forEach((item, index) => {
+                    const itemAngle = angle + (index / items.length) * 2 * Math.PI;
+                    const x = Math.cos(itemAngle) * radius + radius;
+                    const y = Math.sin(itemAngle) * radius + (container.clientWidth < 768 ? radius / 2 : radius);
+                    item.style.left = `${x}px`;
+                    item.style.top = `${y}px`;
+                });
+                requestAnimationFrame(rotateItems);
+            }
+            rotateItems();
+    
+            // Interactive exploration
+            container.addEventListener('mousemove', (e) => {
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+    
+                const items = document.querySelectorAll('.discovery-item');
+                items.forEach(item => {
+                    const dx = item.offsetLeft + item.offsetWidth / 2 - x;
+                    const dy = item.offsetTop + item.offsetHeight / 2 - y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const maxDistance = 200;
+    
+                    if (distance < maxDistance) {
+                        const scale = 1 + (maxDistance - distance) / maxDistance * 0.5;
+                        item.style.transform = `scale(${scale})`;
+                        item.style.zIndex = Math.floor((maxDistance - distance) / 10);
+                    } else {
+                        item.style.transform = 'scale(1)';
+                        item.style.zIndex = 1;
+                    }
+                });
+            });
+    
+            // Featured Artist
+            const featuredArtists = [
+                { name: 'Luna Eclipse', bio: 'Electronic music producer known for ethereal soundscapes and pulsating rhythms.', image: 'https://example.com/luna-eclipse.jpg' },
+                { name: 'The Quantum Beats', bio: 'Indie rock band pushing the boundaries of sound with their experimental approach.', image: 'https://example.com/quantum-beats.jpg' },
+                { name: 'Aria Stardust', bio: 'Pop sensation with a voice that spans octaves and genres effortlessly.', image: 'https://example.com/aria-stardust.jpg' }
+            ];
+    
+            function updateFeaturedArtist() {
+                const artist = featuredArtists[Math.floor(Math.random() * featuredArtists.length)];
+                document.getElementById('artist-name').textContent = artist.name;
+                document.getElementById('artist-bio').textContent = artist.bio;
+                document.getElementById('artist-image').style.backgroundImage = `url(${artist.image})`;
+            }
+    
+            updateFeaturedArtist();
+            setInterval(updateFeaturedArtist, 10000); // Change featured artist every 10 seconds
+    
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                const items = document.querySelectorAll('.discovery-item');
+                items.forEach((item, index) => {
+                    const angle = (index / items.length) * 2 * Math.PI;
+                    const radius = container.clientWidth < 768 ? 150 : 250;
+                    const x = Math.cos(angle) * radius + radius;
+                    const y = Math.sin(angle) * radius + (container.clientWidth < 768 ? radius / 2 : radius);
+                    item.style.left = `${x}px`;
+                    item.style.top = `${y}px`;
+                });
+            });
+        });
+    </script>
 
     <script>
         // Enhanced Preloader animation
@@ -367,6 +681,142 @@
             } else {
                 header.classList.remove('glassmorphism');
             }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 3D Album Carousel
+            const albums = [
+                { title: 'Neon Dreams', artist: 'Cyber Punk', coverUrl: 'https://example.com/neon-dreams.jpg' },
+                { title: 'Quantum Beats', artist: 'Schrödinger\'s Cat', coverUrl: 'https://example.com/quantum-beats.jpg' },
+                { title: 'Solar Flares', artist: 'Cosmic Rays', coverUrl: 'https://example.com/solar-flares.jpg' },
+                { title: 'Digital Renaissance', artist: 'AI Maestro', coverUrl: 'https://example.com/digital-renaissance.jpg' },
+                { title: 'Echoes of Eternity', artist: 'Time Traveler', coverUrl: 'https://example.com/echoes-of-eternity.jpg' }
+            ];
+        
+            const carousel = document.getElementById('album-carousel');
+            let angle = 0;
+        
+            albums.forEach((album, index) => {
+                const card = document.createElement('div');
+                card.className = 'album-card';
+                card.style.backgroundImage = `url(${album.coverUrl})`;
+                carousel.appendChild(card);
+            });
+        
+            function rotateCarousel() {
+                angle += 0.01;
+                const radius = 200;
+                const cards = document.querySelectorAll('.album-card');
+                cards.forEach((card, index) => {
+                    const theta = angle + (2 * Math.PI / cards.length) * index;
+                    const x = Math.sin(theta) * radius;
+                    const z = Math.cos(theta) * radius;
+                    card.style.transform = `translateX(${x}px) translateZ(${z}px) rotateY(${-theta}rad)`;
+                });
+                requestAnimationFrame(rotateCarousel);
+            }
+        
+            rotateCarousel();
+        
+            // Interactive Waveform Visualizer
+            const canvas = document.getElementById('waveform');
+            const ctx = canvas.getContext('2d');
+            const trackInfo = document.getElementById('track-info');
+        
+            function resizeCanvas() {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+            }
+        
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+        
+            function drawWaveform() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height / 2);
+        
+                for (let i = 0; i < canvas.width; i++) {
+                    const y = canvas.height / 2 + Math.sin(i * 0.05 + Date.now() * 0.01) * 50;
+                    ctx.lineTo(i, y);
+                }
+        
+                ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+        
+                requestAnimationFrame(drawWaveform);
+            }
+        
+            drawWaveform();
+        
+            const tracks = [
+                'Cybernetic Symphony', 'Quantum Flux', 'Neon Nights', 'Digital Dreams', 'Stellar Echoes'
+            ];
+        
+            setInterval(() => {
+                const track = tracks[Math.floor(Math.random() * tracks.length)];
+                trackInfo.textContent = `Now Playing: ${track}`;
+            }, 5000);
+        
+            // Dynamic Playlist Creator
+            const genres = ['Synthwave', 'Cyberpunk', 'Ambient', 'Electro', 'Chillwave', 'Vaporwave'];
+            const genreContainer = document.getElementById('genre-tags');
+            const playlistContainer = document.getElementById('generated-playlist');
+        
+            genres.forEach(genre => {
+                const tag = document.createElement('div');
+                tag.className = 'genre-tag';
+                tag.textContent = genre;
+                tag.addEventListener('click', () => {
+                    tag.classList.toggle('active');
+                    generatePlaylist();
+                });
+                genreContainer.appendChild(tag);
+            });
+        
+            function generatePlaylist() {
+                const selectedGenres = Array.from(document.querySelectorAll('.genre-tag.active')).map(tag => tag.textContent);
+                const playlist = [];
+        
+                for (let i = 0; i < 5; i++) {
+                    const genre = selectedGenres[Math.floor(Math.random() * selectedGenres.length)];
+                    playlist.push(`${genre} Track ${i + 1}`);
+                }
+        
+                playlistContainer.innerHTML = '';
+                playlist.forEach(track => {
+                    const trackElement = document.createElement('div');
+                    trackElement.className = 'playlist-track';
+                    trackElement.textContent = track;
+                    playlistContainer.appendChild(trackElement);
+                });
+            }
+        
+            // Particle background
+            const particlesContainer = document.getElementById('library-particles');
+        
+            function createParticle() {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: absolute;
+                    width: 5px;
+                    height: 5px;
+                    background: rgba(0, 255, 255, ${Math.random() * 0.5 + 0.1});
+                    border-radius: 50%;
+                    top: ${Math.random() * 100}%;
+                    left: ${Math.random() * 100}%;
+                    animation: float ${10 + Math.random() * 20}s linear infinite;
+                `;
+                particlesContainer.appendChild(particle);
+        
+                setTimeout(() => {
+                    particle.remove();
+                }, 30000);
+            }
+        
+            setInterval(createParticle, 200);
         });
     </script>
 </body>
